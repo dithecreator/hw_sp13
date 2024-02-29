@@ -33,16 +33,16 @@ void UpdateEditText(HWND hEdit, const char* filename) { //функция, которая считы
 }
 
 DWORD WINAPI INFO(LPVOID lp) {
-    HANDLE hSemaphore = OpenSemaphore(SEMAPHORE_ALL_ACCESS, false, TEXT("{2525FD5F-12E6-47c0-838A-7C5CA1EBD169}")); //открываем семафор
-    DWORD dwAnswer = WaitForSingleObject(hSemaphore, INFINITE); //обьект ожидания синхронизации
-  
-        UpdateEditText(hEdit2, "created.txt");
-        UpdateEditText(hEdit3, "symbols.txt");
-        UpdateEditText(hEdit4, "size.txt");
+    HANDLE hEvent = OpenEvent(EVENT_ALL_ACCESS, 0, TEXT("{AB1640AF-5DCB-4E23-B573-381EF27FB024}")); //открываем ивент
+    DWORD dwAnswer = WaitForSingleObject(hEvent, INFINITE); //обьект ожидания синхронизации
+    SetEvent(hEvent);// перевод события в сигнальное состояние
 
-    
-    ReleaseSemaphore(hSemaphore, 1, NULL); //освобождаем семафор
+    UpdateEditText(hEdit2, "created.txt");
+    UpdateEditText(hEdit3, "symbols.txt");
+    UpdateEditText(hEdit4, "size.txt");
 
+
+    ResetEvent(hEvent); // перевод события в несигнальное состояние
     return 1;
 }
 
@@ -74,8 +74,8 @@ INT_PTR CALLBACK DlgProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         delete[] buffer;
         CreateThread(NULL, 0, INFO, nullptr, 0, NULL); //запускаем поток
 
-      
-       
+
+
     }
     break;
 

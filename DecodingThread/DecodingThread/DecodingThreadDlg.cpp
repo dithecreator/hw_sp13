@@ -36,10 +36,10 @@ DWORD WINAPI Decoding_Thread(LPVOID lp)
 		created++;
 	}
 	wsprintf(str, TEXT("copymusic_%s.txt"), last);
-	HANDLE hSemaphore = OpenSemaphore(SEMAPHORE_ALL_ACCESS, false, TEXT("{2525FD5F-12E6-47c0-838A-7C5CA1EBD169}"));
-	DWORD dwAnswer = WaitForSingleObject(hSemaphore, INFINITE);
-	if(dwAnswer == WAIT_OBJECT_0)
-	{
+	HANDLE hEvent = OpenEvent(EVENT_ALL_ACCESS, 0, TEXT("{AB1640AF-5DCB-4E23-B573-381EF27FB024}")); //открываем ивент
+	DWORD dwAnswer = WaitForSingleObject(hEvent, INFINITE);
+	SetEvent(hEvent); // перевод события в сигнальное состояние
+	
 		ifstream in(TEXT("coding.txt"), ios::binary | ios::in);
 		if(!in)
 		{
@@ -62,9 +62,9 @@ DWORD WINAPI Decoding_Thread(LPVOID lp)
 		}
 		out.close();
 		in.close();
-		ReleaseSemaphore(hSemaphore, 1, NULL);
+		ResetEvent(hEvent); // перевод события в несигнальное состояние
 		MessageBox(ptr->hDialog, TEXT("Чтение данных из файла coding.txt завершено!"), TEXT("Семафор"), MB_OK | MB_ICONINFORMATION);
-	}
+	
 
 
 	ofstream sizeFile("size.txt");

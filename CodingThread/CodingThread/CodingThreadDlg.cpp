@@ -26,10 +26,10 @@ DWORD WINAPI Coding_Thread(LPVOID lp)
 		MessageBox(ptr->hDialog, TEXT("Ошибка открытия файла!"), TEXT("Семафор"), MB_OK | MB_ICONINFORMATION);
 		return 1;
 	}
-	HANDLE hSemaphore = OpenSemaphore(SEMAPHORE_ALL_ACCESS, false, TEXT("{2525FD5F-12E6-47c0-838A-7C5CA1EBD169}"));
-	DWORD dwAnswer = WaitForSingleObject(hSemaphore, INFINITE);
-	if(dwAnswer == WAIT_OBJECT_0)
-	{
+	HANDLE hEvent = OpenEvent(EVENT_ALL_ACCESS, 0, TEXT("{AB1640AF-5DCB-4E23-B573-381EF27FB024}")); //открываем ивент
+	DWORD dwAnswer = WaitForSingleObject(hEvent, INFINITE);
+	SetEvent(hEvent); // перевод события в сигнальное состояние
+
 		ofstream out("coding.txt", ios::binary | ios::out | ios::trunc);
 		const int KEY = 100;
 		while(!in.eof())
@@ -44,9 +44,9 @@ DWORD WINAPI Coding_Thread(LPVOID lp)
 		}
 	
 		out.close();
-		ReleaseSemaphore(hSemaphore, 3, NULL);
+		ResetEvent(hEvent); // перевод события в несигнальное состояние
 		MessageBox(ptr->hDialog, TEXT("Запись данных в файл coding.txt завершена!"), TEXT("Семафор"), MB_OK | MB_ICONINFORMATION);
-	}
+	
 	in.close();
 	return 0;
 }
